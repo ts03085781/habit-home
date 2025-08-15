@@ -15,7 +15,21 @@
       "Bash(git log:*)",
       "Bash(cat:*)",
       "Bash(DATABASE_URL=\"file:./prisma/dev.db\" npx prisma db push)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(lsof:*)",
+      "Bash(PORT=3000 npm run dev)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "WebSearch",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_select_option",
+      "Bash(git reset:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "mcp__playwright__browser_take_screenshot"
     ],
     "deny": []
   }

@@ -1,0 +1,298 @@
+{
+  "common": {
+    "appName": "HabitHome",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "points": "Points",
+    "processing": "Processing..."
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "about": "About",
+    "logout": "Logout",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "backToHome": "Back to Home"
+  },
+  "home": {
+    "hero": {
+      "title": "HabitHome",
+      "subtitle": "Smart chore distribution tool for couples, roommates",
+      "subtitle2": "and families to fairly share household tasks and create harmony"
+    },
+    "features": {
+      "fairDistribution": {
+        "title": "Fair Distribution",
+        "description": "Intelligently assign household tasks based on everyone's preferences, abilities, and availability"
+      },
+      "progressTracking": {
+        "title": "Progress Tracking",
+        "description": "Monitor task completion in real-time and maintain transparent communication"
+      },
+      "pointSystem": {
+        "title": "Point System",
+        "description": "Quantify everyone's contributions to boost motivation and sense of achievement"
+      }
+    },
+    "status": {
+      "title": "Development Status",
+      "description": "Project is under development, stay tuned! We're building the best chore distribution experience.",
+      "mvp": "MVP Development Phase"
+    }
+  },
+  "auth": {
+    "welcome": "Welcome Back",
+    "getStarted": "Start Your Chore Distribution Journey",
+    "login": "Sign in to your account",
+    "register": "Create a new account",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "loginButton": "Sign In",
+    "registerButton": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerNow": "Sign up now",
+    "loginNow": "Sign in now",
+    "terms": "By continuing, you agree to our Terms of Service and Privacy Policy",
+    "placeholders": {
+      "name": "Enter your name",
+      "email": "Enter your email",
+      "password": "Enter your password",
+      "confirmPassword": "Re-enter your password"
+    },
+    "errors": {
+      "loginFailed": "Login failed",
+      "registerFailed": "Registration failed",
+      "passwordMismatch": "Password confirmation does not match",
+      "unknownError": "An unknown error occurred"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "subtitle": "Ready to start smart chore distribution?",
+    "stats": {
+      "myPendingTasks": "My Pending Tasks",
+      "myCompleted": "My Completed",
+      "totalPoints": "Total Points"
+    },
+    "groups": {
+      "title": "My Groups",
+      "joinGroup": "Join Group",
+      "createGroup": "Create Group",
+      "members": "members",
+      "tasks": "tasks",
+      "inviteCode": "Invite Code",
+      "copyInviteCode": "Copy Invite Code",
+      "inviteCodeCopied": "Invite code copied",
+      "noGroups": {
+        "title": "Haven't joined any groups yet",
+        "description": "Create a new group or use an invite code to join an existing one"
+      }
+    },
+    "tasks": {
+      "title": "Task Management",
+      "sortBy": "Sort by:",
+      "sortOptions": {
+        "dueDate": "Closest to Today",
+        "priority": "Priority Level",
+        "completion": "Completion Status"
+      },
+      "createTask": "Create Task",
+      "noTasks": {
+        "title": "No tasks yet",
+        "description": "Create your first household task to get started!"
+      },
+      "group": "Group",
+      "category": "Category",
+      "assignedTo": "Assigned to",
+      "unassigned": "Unassigned",
+      "dueDate": "Due",
+      "start": "Start",
+      "complete": "Complete"
+    }
+  },
+  "taskModal": {
+    "create": {
+      "title": "Create New Task",
+      "button": "Create Task",
+      "loading": "Creating..."
+    },
+    "edit": {
+      "title": "Edit Task",
+      "button": "Update Task",
+      "loading": "Updating..."
+    },
+    "fields": {
+      "title": "Task Title",
+      "titleRequired": "Task Title *",
+      "description": "Task Description",
+      "group": "Select Group *",
+      "assignTo": "Assign to Member",
+      "assignLater": "Assign Later",
+      "category": "Task Category *",
+      "selectCategory": "Select Category",
+      "points": "Reward Points",
+      "priority": "Priority",
+      "dueDate": "Due Date"
+    },
+    "placeholders": {
+      "title": "e.g.: Clean living room, wash dishes, organize bedroom...",
+      "description": "Describe the specific requirements for this task..."
+    },
+    "categories": {
+      "cleaning": "Cleaning",
+      "laundry": "Laundry",
+      "cooking": "Cooking",
+      "shopping": "Shopping",
+      "maintenance": "Maintenance",
+      "petCare": "Pet Care",
+      "garden": "Gardening",
+      "other": "Other"
+    },
+    "priorities": {
+      "low": "Low Priority",
+      "medium": "Medium",
+      "high": "High Priority",
+      "urgent": "Urgent"
+    },
+    "errors": {
+      "createFailed": "Failed to create task",
+      "updateFailed": "Failed to update task"
+    }
+  },
+  "groupModal": {
+    "create": {
+      "title": "Create New Group",
+      "button": "Create Group",
+      "loading": "Creating..."
+    },
+    "join": {
+      "title": "Join Group",
+      "button": "Join Group",
+      "loading": "Joining...",
+      "inviteCode": "Invite Code",
+      "inviteCodePlaceholder": "Enter 6-digit invite code",
+      "description": "Please enter the invite code provided by the group admin"
+    },
+    "fields": {
+      "name": "Group Name *",
+      "namePlaceholder": "Enter group name",
+      "description": "Group Description",
+      "descriptionPlaceholder": "Briefly describe this group..."
+    },
+    "errors": {
+      "createFailed": "Failed to create group",
+      "joinFailed": "Failed to join group"
+    }
+  },
+  "deleteModal": {
+    "title": "Confirm Delete Task",
+    "message": "Are you sure you want to delete task \"{title}\"?",
+    "warning": "This action cannot be undone. Please confirm carefully.",
+    "button": "Confirm Delete",
+    "loading": "Deleting...",
+    "error": "Failed to delete task"
+  },
+  "taskCard": {
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    },
+    "priorities": {
+      "high": "High Priority",
+      "urgent": "Urgent",
+      "medium": "Medium",
+      "low": "Low Priority"
+    },
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "updateError": "Failed to update task status"
+  },
+  "about": {
+    "subtitle": "Smart chore distribution tool that makes family life more harmonious",
+    "sections": {
+      "distribution": {
+        "title": "Smart Fair Distribution",
+        "description": "HabitHome uses advanced algorithms to ensure fair chore distribution, considering each member's:",
+        "features": [
+          "Personal preferences and preferred chore types",
+          "Available time and work schedule", 
+          "Physical abilities and limitations",
+          "Past task completion performance"
+        ],
+        "summary": "The system automatically adjusts task allocation to ensure everyone contributes to the household under reasonable burden."
+      },
+      "tracking": {
+        "title": "Real-time Progress Tracking",
+        "description": "Through an intuitive dashboard, all family members can clearly see:",
+        "features": [
+          "Current pending task list",
+          "Each member's task completion status",
+          "Weekly and monthly chore statistics",
+          "Important chore reminders that are due soon"
+        ],
+        "summary": "Maintain a transparent communication environment and avoid friction caused by uneven chore distribution."
+      },
+      "points": {
+        "title": "Motivational Point System", 
+        "description": "Make doing chores fun! Our point system includes:",
+        "features": [
+          "Earn point rewards for completing tasks",
+          "Get bonus rewards for consecutive completions",
+          "Monthly chore star leaderboard",
+          "Achievement badges and milestone celebrations"
+        ],
+        "summary": "Quantify everyone's contributions, boost participation motivation, and make chore distribution something to look forward to."
+      }
+    },
+    "steps": {
+      "title": "How to Get Started",
+      "step1": {
+        "title": "Sign Up",
+        "description": "Create your HabitHome account and start your smart chore management journey"
+      },
+      "step2": {
+        "title": "Create Family",
+        "description": "Invite family members to join and set up everyone's preferences and schedules"
+      },
+      "step3": {
+        "title": "Set Up Tasks", 
+        "description": "Add your household's daily chores, and the system will intelligently assign them to suitable members"
+      },
+      "step4": {
+        "title": "Start Executing",
+        "description": "Complete tasks according to assignments, earn points, and enjoy a harmonious family life"
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Sign up for HabitHome today and let AI help your family establish a better chore distribution system"
+    }
+  },
+  "api": {
+    "errors": {
+      "unauthorized": "Unauthorized access",
+      "invalidCredentials": "Invalid credentials",
+      "userExists": "User already exists",
+      "userNotFound": "User not found",
+      "invalidToken": "Invalid token",
+      "missingFields": "Missing required fields",
+      "serverError": "Server error",
+      "dataLoadFailed": "Failed to load data",
+      "loginFailed": "Login failed",
+      "registerFailed": "Registration failed",
+      "updateFailed": "Failed to update data"
+    }
+  }
+}

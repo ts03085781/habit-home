@@ -1,18 +1,22 @@
 import { apiClient } from '@/lib/api-client';
 import { Task } from "@/types/common";
+import { getTranslations, type Locale } from '@/lib/translations';
 
 // 任務卡片組件
 export default function TaskCard({ 
     task, 
     onUpdate, 
     onEdit, 
-    onDelete 
+    onDelete,
+    locale = 'zh'
   }: { 
     task: Task; 
     onUpdate: () => void;
     onEdit: (task: Task) => void;
     onDelete: (task: Task) => void;
+    locale?: Locale;
   }) {
+    const { t } = getTranslations(locale);
     const getPriorityColor = (priority: string) => {
       switch (priority) {
         case 'HIGH': return 'text-red-600 bg-red-50';
@@ -35,20 +39,20 @@ export default function TaskCard({
   
     const getStatusText = (status: string) => {
       switch (status) {
-        case 'COMPLETED': return '已完成';
-        case 'IN_PROGRESS': return '進行中';
-        case 'PENDING': return '待處理';
-        case 'CANCELLED': return '已取消';
+        case 'COMPLETED': return t('taskCard.status.completed');
+        case 'IN_PROGRESS': return t('taskCard.status.inProgress');
+        case 'PENDING': return t('taskCard.status.pending');
+        case 'CANCELLED': return t('taskCard.status.cancelled');
         default: return status;
       }
     };
   
     const getPriorityText = (priority: string) => {
       switch (priority) {
-        case 'HIGH': return '高優先級';
-        case 'URGENT': return '緊急';
-        case 'MEDIUM': return '中等';
-        case 'LOW': return '低優先級';
+        case 'HIGH': return t('taskCard.priorities.high');
+        case 'URGENT': return t('taskCard.priorities.urgent');
+        case 'MEDIUM': return t('taskCard.priorities.medium');
+        case 'LOW': return t('taskCard.priorities.low');
         default: return priority;
       }
     };
@@ -60,7 +64,7 @@ export default function TaskCard({
           onUpdate();
         }
       } catch (error) {
-        console.error('更新任務狀態失敗:', error);
+        console.error(t('taskCard.updateError'), error);
       }
     };
   
@@ -73,10 +77,10 @@ export default function TaskCard({
               <p className="text-base rounded-lg bg-gray-100 text-gray-600 mb-3 p-4 w-fit">{task.description}</p>
             )}
             <div className="flex items-center flex-wrap gap-5 text-sm">
-              <span className="text-gray-500">群組: {task.family.name}</span>
-              <span className="text-gray-500">分類: {task.category}</span>
+              <span className="text-gray-500">{t('dashboard.tasks.group')}: {task.family.name}</span>
+              <span className="text-gray-500">{t('dashboard.tasks.category')}: {task.category}</span>
               {task.points > 0 && (
-                <span className="text-primary-600 font-medium">🏆 積分: {task.points} 分</span>
+                <span className="text-primary-600 font-medium">🏆 {t('common.points')}: {task.points}</span>
               )}
             </div>
           </div>
@@ -95,7 +99,7 @@ export default function TaskCard({
               <button
                 onClick={() => onEdit(task)}
                 className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                title="編輯任務"
+                title={t('taskCard.editTask')}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -104,7 +108,7 @@ export default function TaskCard({
               <button
                 onClick={() => onDelete(task)}
                 className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                title="刪除任務"
+                title={t('taskCard.deleteTask')}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -123,14 +127,14 @@ export default function TaskCard({
                     {task.assignedTo.name.charAt(0).toUpperCase()}
                   </span>
                 </div> */}
-                <span>分配給 {task.assignedTo.name}</span>
+                <span>{t('dashboard.tasks.assignedTo')} {task.assignedTo.name}</span>
               </div>
             ) : (
-              <span className="text-orange-600">尚未分配</span>
+              <span className="text-orange-600">{t('dashboard.tasks.unassigned')}</span>
             )}
             
             {task.dueDate && (
-              <span>截止：{new Date(task.dueDate).toLocaleDateString('zh-TW')}</span>
+              <span>{t('dashboard.tasks.dueDate')}：{new Date(task.dueDate).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}</span>
             )}
           </div>
   
@@ -141,7 +145,7 @@ export default function TaskCard({
                   onClick={() => handleStatusUpdate('IN_PROGRESS')}
                   className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xl font-medium rounded-md transition-colors"
                 >
-                  開始
+                  {t('dashboard.tasks.start')}
                 </button>
               )}
               {task.status === 'IN_PROGRESS' && (
@@ -149,7 +153,7 @@ export default function TaskCard({
                   onClick={() => handleStatusUpdate('COMPLETED')}
                   className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xl font-medium rounded-md transition-colors"
                 >
-                  完成
+                  {t('dashboard.tasks.complete')}
                 </button>
               )}
             </div>

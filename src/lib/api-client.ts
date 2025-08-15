@@ -9,7 +9,7 @@ class APIClient {
     this.token = accessToken;
     this.refreshToken = refreshToken;
     
-    // 儲存到localStorage
+    // 儲存到localStorage | Store to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
@@ -74,11 +74,11 @@ class APIClient {
     try {
       let response = await fetch(url, { ...options, headers });
 
-      // 如果是401錯誤，嘗試刷新token
+      // 如果是401錯誤，嘗試刷新token | If it's a 401 error, try to refresh token
       if (response.status === 401 && currentToken) {
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
-          // 重新嘗試請求
+          // 重新嘗試請求 | Retry the request
           const newToken = this.token || this.getTokens().accessToken;
           response = await fetch(url, {
             ...options,
@@ -102,11 +102,11 @@ class APIClient {
     }
   }
 
-  // 認證相關方法
-  async register(data: { email: string; password: string; name: string; confirmPassword: string }) {
+  // 認證相關方法 | Authentication related methods
+  async register(data: { email: string; password: string; name: string; confirmPassword: string }, locale: string = 'en') {
     const response = await this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ ...data, locale })
     });
 
     if (response.success && response.data) {
@@ -117,10 +117,10 @@ class APIClient {
     return response;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, locale: string = 'en') {
     const response = await this.request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, locale })
     });
 
     if (response.success && response.data) {
@@ -133,14 +133,14 @@ class APIClient {
 
   async logout() {
     this.clearTokens();
-    // 可以添加服務器端登出邏輯
+    // 可以添加服務器端登出邏輯 | Can add server-side logout logic
   }
 
   async getCurrentUser() {
     return this.request('/auth/me', { method: 'GET' });
   }
 
-  // 家庭管理方法
+  // 家庭管理方法 | Family management methods
   async getFamilies() {
     return this.request('/families', { method: 'GET' });
   }
@@ -163,7 +163,7 @@ class APIClient {
     return this.request(`/families/${id}`, { method: 'GET' });
   }
 
-  // 任務管理方法
+  // 任務管理方法 | Task management methods
   async getTasks(familyId?: string) {
     const query = familyId ? `?familyId=${familyId}` : '';
     return this.request(`/tasks${query}`, { method: 'GET' });
@@ -191,7 +191,7 @@ class APIClient {
     return this.request(`/tasks/${id}/complete`, { method: 'POST' });
   }
 
-  // 統計數據方法
+  // 統計數據方法 | Statistics data methods
   async getStats() {
     return this.request('/stats', { method: 'GET' });
   }

@@ -2,18 +2,13 @@ import { NextRequest } from 'next/server';
 import { verifyTokenFromRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api-response';
-import { z } from 'zod';
-
-const CreateFamilySchema = z.object({
-  name: z.string().min(1, '家庭名稱不能為空'),
-  description: z.string().optional()
-});
+import { createValidationSchemas } from '@/lib/validations';
 
 export async function GET(request: NextRequest) {
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     const families = await prisma.family.findMany({
@@ -48,8 +43,8 @@ export async function GET(request: NextRequest) {
 
     return successResponse(families);
   } catch (error) {
-    console.error('獲取家庭列表錯誤:', error);
-    return errorResponse('獲取家庭列表失敗');
+    console.error('Failed to fetch family list:', error);
+    return errorResponse('Failed to fetch family list');
   }
 }
 
@@ -57,10 +52,12 @@ export async function POST(request: NextRequest) {
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     const body = await request.json();
+    const locale = (body.locale || 'en') as 'en' | 'zh';
+    const { CreateFamilySchema } = createValidationSchemas(locale);
     const validation = CreateFamilySchema.safeParse(body);
     
     if (!validation.success) {
@@ -69,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const { name, description } = validation.data;
 
-    // 生成邀請碼
+    // Generate invite code
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     const family = await prisma.family.create({
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(family, 201);
   } catch (error) {
-    console.error('創建家庭錯誤:', error);
-    return errorResponse('創建家庭失敗');
+    console.error('Failed to create family:', error);
+    return errorResponse('Failed to create family');
   }
 }

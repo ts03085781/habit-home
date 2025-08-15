@@ -1,10 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api-client';
+import { getTranslations } from '@/lib/translations';
 
 export default function AuthPage() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const isZh = locale === 'zh';
+  const { t } = getTranslations(locale as 'en' | 'zh');
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -31,17 +37,17 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         // 登入邏輯
-        const response = await apiClient.login(formData.email, formData.password);
+        const response = await apiClient.login(formData.email, formData.password, locale);
         if (response.success) {
           // 登入成功，跳轉到主頁面
-          window.location.href = '/dashboard';
+          window.location.href = `/${locale}/dashboard`;
         } else {
-          setError(response.error || '登入失敗');
+          setError(response.error || t('auth.errors.loginFailed'));
         }
       } else {
         // 註冊邏輯
         if (formData.password !== formData.confirmPassword) {
-          setError('密碼確認不匹配');
+          setError(t('auth.errors.passwordMismatch'));
           return;
         }
         
@@ -50,17 +56,17 @@ export default function AuthPage() {
           password: formData.password,
           name: formData.name,
           confirmPassword: formData.confirmPassword
-        });
+        }, locale);
         
         if (response.success) {
           // 註冊成功，跳轉到主頁面
-          window.location.href = '/dashboard';
+          window.location.href = `/${locale}/dashboard`;
         } else {
-          setError(response.error || '註冊失敗');
+          setError(response.error || t('auth.errors.registerFailed'));
         }
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '發生未知錯誤');
+      setError(error instanceof Error ? error.message : t('auth.errors.unknownError'));
     } finally {
       setIsLoading(false);
     }
@@ -76,14 +82,20 @@ export default function AuthPage() {
                 🏠 HabitHome
               </h1>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {isLogin ? '歡迎回來' : '開始你的家務分配之旅'}
+              {isLogin 
+                ? (isZh ? '歡迎回來' : 'Welcome Back') 
+                : (isZh ? '開始你的家務分配之旅' : 'Start Your Chore Distribution Journey')
+              }
             </h2>
           </div>
 
           {/* Auth Form */}
           <div className="bg-white rounded-xl shadow-lg p-8">
             <p className="text-gray-600 text-center mb-4 text-lg">
-                {isLogin ? '登入你的帳戶' : '創建新帳戶'}
+                {isLogin 
+                  ? (isZh ? '登入你的帳戶' : 'Sign in to your account') 
+                  : (isZh ? '創建新帳戶' : 'Create a new account')
+                }
             </p>
             
             {error && (
@@ -97,7 +109,7 @@ export default function AuthPage() {
               {!isLogin && (
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    姓名
+                    {isZh ? '姓名' : 'Name'}
                   </label>
                   <input
                     type="text"
@@ -106,7 +118,7 @@ export default function AuthPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors"
-                    placeholder="請輸入你的姓名"
+                    placeholder={isZh ? "請輸入你的姓名" : "Enter your name"}
                     required
                   />
                 </div>
@@ -115,7 +127,7 @@ export default function AuthPage() {
               {/* Email field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  電子郵件
+                  {isZh ? '電子郵件' : 'Email'}
                 </label>
                 <input
                   type="email"
@@ -124,7 +136,7 @@ export default function AuthPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="請輸入你的電子郵件"
+                  placeholder={isZh ? "請輸入你的電子郵件" : "Enter your email"}
                   required
                 />
               </div>
@@ -132,7 +144,7 @@ export default function AuthPage() {
               {/* Password field */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  密碼
+                  {isZh ? '密碼' : 'Password'}
                 </label>
                 <input
                   type="password"
@@ -141,7 +153,7 @@ export default function AuthPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   className="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="請輸入你的密碼"
+                  placeholder={isZh ? "請輸入你的密碼" : "Enter your password"}
                   required
                 />
               </div>
@@ -150,7 +162,7 @@ export default function AuthPage() {
               {!isLogin && (
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    確認密碼
+                    {isZh ? '確認密碼' : 'Confirm Password'}
                   </label>
                   <input
                     type="password"
@@ -159,7 +171,7 @@ export default function AuthPage() {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     className="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors"
-                    placeholder="請再次輸入密碼"
+                    placeholder={isZh ? "請再次輸入密碼" : "Re-enter your password"}
                     required
                   />
                 </div>
@@ -177,10 +189,12 @@ export default function AuthPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    處理中...
+                    {isZh ? '處理中...' : 'Processing...'}
                   </>
                 ) : (
-                  isLogin ? '登入' : '註冊'
+                  isLogin 
+                    ? (isZh ? '登入' : 'Sign In')
+                    : (isZh ? '註冊' : 'Sign Up')
                 )}
               </button>
             </form>
@@ -188,12 +202,18 @@ export default function AuthPage() {
             {/* Toggle Auth Mode */}
             <div className="mt-6 text-center">
               <p className="text-gray-600">
-                {isLogin ? '還沒有帳戶？' : '已經有帳戶了？'}
+                {isLogin 
+                  ? (isZh ? '還沒有帳戶？' : "Don't have an account?")
+                  : (isZh ? '已經有帳戶了？' : 'Already have an account?')
+                }
                 <button
                   onClick={() => setIsLogin(!isLogin)}
                   className="ml-2 text-primary-600 hover:text-primary-700 font-semibold"
                 >
-                  {isLogin ? '立即註冊' : '立即登入'}
+                  {isLogin 
+                    ? (isZh ? '立即註冊' : 'Sign up now')
+                    : (isZh ? '立即登入' : 'Sign in now')
+                  }
                 </button>
               </p>
             </div>
@@ -201,7 +221,10 @@ export default function AuthPage() {
             {/* Divider */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-center text-sm text-gray-500">
-                繼續使用即表示你同意我們的服務條款和隱私政策
+                {isZh 
+                  ? '繼續使用即表示你同意我們的服務條款和隱私政策'
+                  : 'By continuing, you agree to our Terms of Service and Privacy Policy'
+                }
               </p>
             </div>
           </div>
@@ -209,10 +232,10 @@ export default function AuthPage() {
           {/* Back to Home */}
           <div className="mt-8 text-center">
             <Link
-              href="/"
+              href={`/${locale}`}
               className="text-primary-600 hover:text-primary-700 font-medium"
             >
-              返回首頁
+              {isZh ? '返回首頁' : 'Back to Home'}
             </Link>
           </div>
         </div>

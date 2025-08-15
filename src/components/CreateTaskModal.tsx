@@ -2,13 +2,16 @@
 import { useState } from "react";
 import { Family } from '@/types/common'
 import { apiClient } from '@/lib/api-client';
+import { getTranslations, type Locale } from '@/lib/translations';
 
 // 創建任務彈窗組件
-export default function CreateTaskModal({ families, onClose, onSuccess }: { 
+export default function CreateTaskModal({ families, onClose, onSuccess, locale = 'zh' }: { 
     families: Family[]; 
     onClose: () => void; 
-    onSuccess: () => void 
+    onSuccess: () => void;
+    locale?: Locale;
   }) {
+    const { t } = getTranslations(locale);
     const [formData, setFormData] = useState({
       title: '',
       description: '',
@@ -46,24 +49,30 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
           onSuccess();
           onClose();
         } else {
-          setError(response.error || '創建任務失敗');
+          setError(response.error || t('taskModal.errors.createFailed'));
         }
       } catch (error) {
-        setError(error instanceof Error ? error.message : '創建任務失敗');
+        setError(error instanceof Error ? error.message : t('taskModal.errors.createFailed'));
       } finally {
         setIsLoading(false);
       }
     };
   
     const commonCategories = [
-      '清潔打掃', '洗衣整理', '廚房料理', '採購物品', 
-      '維護修理', '照顧寵物', '庭院整理', '其他'
+      { key: 'cleaning', label: t('taskModal.categories.cleaning') },
+      { key: 'laundry', label: t('taskModal.categories.laundry') },
+      { key: 'cooking', label: t('taskModal.categories.cooking') },
+      { key: 'shopping', label: t('taskModal.categories.shopping') },
+      { key: 'maintenance', label: t('taskModal.categories.maintenance') },
+      { key: 'petCare', label: t('taskModal.categories.petCare') },
+      { key: 'garden', label: t('taskModal.categories.garden') },
+      { key: 'other', label: t('taskModal.categories.other') }
     ];
   
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="text-gray-600 bg-white rounded-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">創建新任務</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('taskModal.create.title')}</h3>
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -75,14 +84,14 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             {/* 任務標題 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                任務標題 *
+                {t('taskModal.fields.titleRequired')}
               </label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                placeholder="例如：打掃客廳、洗碗、整理房間..."
+                placeholder={t('taskModal.placeholders.title')}
                 required
               />
             </div>
@@ -90,13 +99,13 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             {/* 任務描述 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                任務描述
+                {t('taskModal.fields.description')}
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                placeholder="描述任務的具體要求..."
+                placeholder={t('taskModal.placeholders.description')}
                 rows={3}
               />
             </div>
@@ -104,7 +113,7 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             {/* 群組選擇 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                選擇群組 *
+                {t('taskModal.fields.group')}
               </label>
               <select
                 value={formData.familyId}
@@ -124,14 +133,14 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             {selectedFamily && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  分配給成員
+                  {t('taskModal.fields.assignTo')}
                 </label>
                 <select
                   value={formData.assignedToId}
                   onChange={(e) => setFormData({ ...formData, assignedToId: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                 >
-                  <option value="">稍後分配</option>
+                  <option value="">{t('taskModal.fields.assignLater')}</option>
                   {selectedFamily.members.map((member: any) => (
                     <option key={member.user.id} value={member.user.id}>
                       {member.user.name}
@@ -145,7 +154,7 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  任務分類 *
+                  {t('taskModal.fields.category')}
                 </label>
                 <select
                   value={formData.category}
@@ -153,10 +162,10 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   required
                 >
-                  <option value="">選擇分類</option>
+                  <option value="">{t('taskModal.fields.selectCategory')}</option>
                   {commonCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
+                    <option key={category.key} value={category.label}>
+                      {category.label}
                     </option>
                   ))}
                 </select>
@@ -164,7 +173,7 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
   
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  獎勵積分
+                  {t('taskModal.fields.points')}
                 </label>
                 <input
                   type="number"
@@ -182,23 +191,23 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  優先級
+                  {t('taskModal.fields.priority')}
                 </label>
                 <select
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                 >
-                  <option value="LOW">低優先級</option>
-                  <option value="MEDIUM">中等</option>
-                  <option value="HIGH">高優先級</option>
-                  <option value="URGENT">緊急</option>
+                  <option value="LOW">{t('taskModal.priorities.low')}</option>
+                  <option value="MEDIUM">{t('taskModal.priorities.medium')}</option>
+                  <option value="HIGH">{t('taskModal.priorities.high')}</option>
+                  <option value="URGENT">{t('taskModal.priorities.urgent')}</option>
                 </select>
               </div>
   
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  截止日期
+                  {t('taskModal.fields.dueDate')}
                 </label>
                 <input
                   type="date"
@@ -215,14 +224,14 @@ export default function CreateTaskModal({ families, onClose, onSuccess }: {
                 onClick={onClose}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
               >
-                取消
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isLoading || !formData.title.trim() || !formData.category || !formData.familyId}
                 className="px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
               >
-                {isLoading ? '創建中...' : '創建任務'}
+                {isLoading ? t('taskModal.create.loading') : t('taskModal.create.button')}
               </button>
             </div>
           </form>

@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Task } from '@/types/common'
 import { apiClient } from '@/lib/api-client';
+import { getTranslations, type Locale } from '@/lib/translations';
 
 // 刪除確認對話框組件
-export default function DeleteConfirmModal({ task, onClose, onSuccess }: {
+export default function DeleteConfirmModal({ task, onClose, onSuccess, locale = 'zh' }: {
     task: Task;
     onClose: () => void;
     onSuccess: () => void;
+    locale?: Locale;
   }) {
+    const { t } = getTranslations(locale);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
   
@@ -21,10 +24,10 @@ export default function DeleteConfirmModal({ task, onClose, onSuccess }: {
           onSuccess();
           onClose();
         } else {
-          setError(response.error || '刪除任務失敗');
+          setError(response.error || t('deleteModal.error'));
         }
       } catch (error) {
-        setError(error instanceof Error ? error.message : '刪除任務失敗');
+        setError(error instanceof Error ? error.message : t('deleteModal.error'));
       } finally {
         setIsLoading(false);
       }
@@ -40,17 +43,17 @@ export default function DeleteConfirmModal({ task, onClose, onSuccess }: {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-lg font-bold text-gray-900">確認刪除任務</h3>
+              <h3 className="text-lg font-bold text-gray-900">{t('deleteModal.title')}</h3>
             </div>
           </div>
   
           <div className="mb-4">
             <p className="text-gray-600 mb-3">
-              您確定要刪除任務「<span className="font-semibold text-gray-900">{task.title}</span>」嗎？
+              {t('deleteModal.message').replace('{title}', task.title)}
             </p>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <p className="text-yellow-800 text-sm">
-                ⚠️ 此操作無法撤銷，請謹慎確認。
+                ⚠️ {t('deleteModal.warning')}
               </p>
             </div>
           </div>
@@ -68,14 +71,14 @@ export default function DeleteConfirmModal({ task, onClose, onSuccess }: {
               className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
               disabled={isLoading}
             >
-              取消
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleDelete}
               disabled={isLoading}
               className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
-              {isLoading ? '刪除中...' : '確認刪除'}
+              {isLoading ? t('deleteModal.loading') : t('deleteModal.button')}
             </button>
           </div>
         </div>

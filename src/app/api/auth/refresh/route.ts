@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // 驗證輸入數據
+    // Validate input data
     const validation = RefreshTokenSchema.safeParse(body);
     if (!validation.success) {
       return validationErrorResponse(validation.error.issues);
@@ -16,13 +16,13 @@ export async function POST(request: NextRequest) {
 
     const { refreshToken } = validation.data;
 
-    // 驗證refresh token
+    // Verify refresh token
     const decoded = await verifyRefreshToken(refreshToken);
     if (!decoded) {
-      return errorResponse('無效的refresh token', 401);
+      return errorResponse('Invalid refresh token', 401);
     }
 
-    // 檢查用戶是否仍然存在
+    // Check if user still exists
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return errorResponse('用戶不存在', 401);
+      return errorResponse('User not found', 401);
     }
 
-    // 生成新的tokens
+    // Generate new tokens
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
 
     return successResponse({
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('刷新token錯誤:', error);
-    return errorResponse('刷新token失敗，請重新登入');
+    console.error('Refresh token error:', error);
+    return errorResponse('Token refresh failed, please login again');
   }
 }

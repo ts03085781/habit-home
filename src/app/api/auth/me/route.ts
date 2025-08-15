@@ -5,14 +5,14 @@ import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/api-
 
 export async function GET(request: NextRequest) {
   try {
-    // 驗證認證
+    // Authenticate request
     const auth = await authenticateRequest(request);
     
     if (auth.error) {
       return unauthorizedResponse(auth.error);
     }
 
-    // 獲取用戶詳細信息
+    // Get user details
     const user = await prisma.user.findUnique({
       where: { id: auth.user!.id },
       select: {
@@ -37,13 +37,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return errorResponse('用戶不存在', 404);
+      return errorResponse('User not found', 404);
     }
 
     return successResponse(user);
 
   } catch (error) {
-    console.error('獲取用戶信息錯誤:', error);
-    return errorResponse('獲取用戶信息失敗');
+    console.error('Get user info error:', error);
+    return errorResponse('Failed to get user information');
   }
 }

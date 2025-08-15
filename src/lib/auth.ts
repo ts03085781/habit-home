@@ -75,7 +75,7 @@ export async function authenticateRequest(request: NextRequest) {
     return { error: 'Invalid or expired token', status: 401 };
   }
 
-  // 驗證用戶是否仍然存在
+  // 驗證用戶是否仍然存在 | Verify if user still exists
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
     select: { id: true, email: true, name: true }
@@ -88,7 +88,7 @@ export async function authenticateRequest(request: NextRequest) {
   return { user };
 }
 
-// 從 NextRequest 中驗證用戶的便捷函數
+// 從 NextRequest 中驗證用戶的便捷函數 | Convenience function to verify user from NextRequest
 export async function verifyTokenFromRequest(request: NextRequest): Promise<{ id: string; email: string; name: string } | null> {
   const authResult = await authenticateRequest(request);
   if ('error' in authResult) {

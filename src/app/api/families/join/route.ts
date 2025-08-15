@@ -2,20 +2,18 @@ import { NextRequest } from 'next/server';
 import { verifyTokenFromRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api-response';
-import { z } from 'zod';
-
-const JoinFamilySchema = z.object({
-  inviteCode: z.string().min(6, '邀請碼格式錯誤').max(8, '邀請碼格式錯誤')
-});
+import { createValidationSchemas } from '@/lib/validations';
 
 export async function POST(request: NextRequest) {
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     const body = await request.json();
+    const locale = (body.locale || 'en') as 'en' | 'zh';
+    const { JoinFamilySchema } = createValidationSchemas(locale);
     const validation = JoinFamilySchema.safeParse(body);
     
     if (!validation.success) {
@@ -24,16 +22,16 @@ export async function POST(request: NextRequest) {
 
     const { inviteCode } = validation.data;
 
-    // 查找家庭
+    // Find family
     const family = await prisma.family.findUnique({
       where: { inviteCode: inviteCode.toUpperCase() }
     });
 
     if (!family) {
-      return errorResponse('邀請碼無效', 404);
+      return errorResponse('Invalid invite code', 404);
     }
 
-    // 檢查用戶是否已經是該家庭成員
+    // Check if user is already a member of this family
     const existingMember = await prisma.familyMember.findUnique({
       where: {
         userId_familyId: {
@@ -44,10 +42,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingMember) {
-      return errorResponse('您已經是該家庭的成員', 409);
+      return errorResponse('You are already a member of this family', 409);
     }
 
-    // 加入家庭
+    // Join family
     const familyMember = await prisma.familyMember.create({
       data: {
         userId: user.id,
@@ -56,7 +54,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // 返回更新後的家庭信息
+    // Return updated family information
     const updatedFamily = await prisma.family.findUnique({
       where: { id: family.id },
       include: {
@@ -83,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(updatedFamily);
   } catch (error) {
-    console.error('加入家庭錯誤:', error);
-    return errorResponse('加入家庭失敗');
+    console.error('Failed to join family:', error);
+    return errorResponse('Failed to join family');
   }
 }

@@ -23,26 +23,26 @@ export function errorResponse(
 export function validationErrorResponse(details: any): NextResponse<APIResponse> {
   return NextResponse.json({
     success: false,
-    error: '輸入驗證失敗',
+    error: 'Validation failed',
     details
   }, { status: 400 });
 }
 
-export function unauthorizedResponse(message: string = '未授權訪問'): NextResponse<APIResponse> {
+export function unauthorizedResponse(message: string = 'Unauthorized access'): NextResponse<APIResponse> {
   return NextResponse.json({
     success: false,
     error: message
   }, { status: 401 });
 }
 
-export function forbiddenResponse(message: string = '訪問被拒絕'): NextResponse<APIResponse> {
+export function forbiddenResponse(message: string = 'Access denied'): NextResponse<APIResponse> {
   return NextResponse.json({
     success: false,
     error: message
   }, { status: 403 });
 }
 
-export function notFoundResponse(message: string = '資源未找到'): NextResponse<APIResponse> {
+export function notFoundResponse(message: string = 'Resource not found'): NextResponse<APIResponse> {
   return NextResponse.json({
     success: false,
     error: message

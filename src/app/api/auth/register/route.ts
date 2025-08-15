@@ -1,14 +1,29 @@
 import { NextRequest } from 'next/server';
-import { RegisterSchema } from '@/lib/validations';
+import { createValidationSchemas } from '@/lib/validations';
 import { hashPassword, generateTokens } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api-response';
 
+// Translation messages
+const messages = {
+  en: {
+    emailExists: 'This email is already registered',
+    registerFailed: 'Registration failed, please try again later'
+  },
+  zh: {
+    emailExists: '此電子郵件已被註冊',
+    registerFailed: '註冊失敗，請稍後再試'
+  }
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const locale = (body.locale || 'en') as 'en' | 'zh';
+    const t = messages[locale];
     
-    // 驗證輸入數據
+    // Validate input data
+    const { RegisterSchema } = createValidationSchemas(locale);
     const validation = RegisterSchema.safeParse(body);
     if (!validation.success) {
       return validationErrorResponse(validation.error.issues);
@@ -16,16 +31,16 @@ export async function POST(request: NextRequest) {
 
     const { email, password, name } = validation.data;
 
-    // 檢查用戶是否已存在
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
 
     if (existingUser) {
-      return errorResponse('此電子郵件已被註冊', 409);
+      return errorResponse(t.emailExists, 409);
     }
 
-    // 創建新用戶
+    // Create new user
     const hashedPassword = await hashPassword(password);
     const user = await prisma.user.create({
       data: {
@@ -42,7 +57,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // 生成JWT tokens
+    // Generate JWT tokens
     const { accessToken, refreshToken } = generateTokens(user);
 
     return successResponse({
@@ -52,7 +67,9 @@ export async function POST(request: NextRequest) {
     }, 201);
 
   } catch (error) {
-    console.error('註冊錯誤:', error);
-    return errorResponse('註冊失敗，請稍後再試');
+    console.error('Registration error:', error);
+    const locale = 'en'; // Default fallback
+    const t = messages[locale];
+    return errorResponse(t.registerFailed);
   }
 }

@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
-    // 獲取用戶所有家庭
+    // Get all user families
     const userFamilies = await prisma.familyMember.findMany({
       where: { userId: user.id },
       select: { familyId: true }
@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
 
     const familyIds = userFamilies.map(f => f.familyId);
 
-    // 統計所有家庭的任務數據
+    // Statistics for all family tasks
     const [
       pendingTasks,
       completedTasks,
       totalPoints
     ] = await Promise.all([
-      // 待完成任務數量
+      // Pending tasks count
       prisma.task.count({
         where: {
           familyId: { in: familyIds },
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         }
       }),
       
-      // 已完成任務數量
+      // Completed tasks count
       prisma.task.count({
         where: {
           familyId: { in: familyIds },
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         }
       }),
       
-      // 用戶總積分
+      // User total points
       prisma.pointRecord.aggregate({
         where: {
           userId: user.id,
@@ -52,12 +52,12 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // 用戶個人的任務統計
+    // User personal task statistics
     const [
       userPendingTasks,
       userCompletedTasks
     ] = await Promise.all([
-      // 分配給用戶的待完成任務
+      // Pending tasks assigned to user
       prisma.task.count({
         where: {
           familyId: { in: familyIds },
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
         }
       }),
       
-      // 分配給用戶的已完成任務
+      // Completed tasks assigned to user
       prisma.task.count({
         where: {
           familyId: { in: familyIds },
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // 最近的任務活動
+    // Recent task activity
     const recentTasks = await prisma.task.findMany({
       where: {
         familyId: { in: familyIds },
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(stats);
   } catch (error) {
-    console.error('獲取統計數據錯誤:', error);
-    return errorResponse('獲取統計數據失敗');
+    console.error('Failed to fetch statistics:', error);
+    return errorResponse('Failed to fetch statistics');
   }
 }

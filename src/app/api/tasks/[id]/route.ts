@@ -2,18 +2,18 @@ import { NextRequest } from 'next/server';
 import { verifyTokenFromRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api-response';
+import { createValidationSchemas } from '@/lib/validations';
 import { z } from 'zod';
 
-const UpdateTaskSchema = z.object({
-  title: z.string().min(1, '任務標題不能為空').optional(),
-  description: z.string().optional(),
-  points: z.number().min(0, '積分不能為負數').optional(),
-  category: z.string().min(1, '分類不能為空').optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
-  assignedToId: z.string().optional().nullable(),
-  dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined).nullable()
-});
+// Extended update schema with status field
+function createExtendedUpdateTaskSchema(locale: 'en' | 'zh' = 'en') {
+  const { UpdateTaskSchema } = createValidationSchemas(locale);
+  return UpdateTaskSchema.extend({
+    status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
+    assignedToId: z.string().optional().nullable(),
+    dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined).nullable()
+  });
+}
 
 export async function PUT(
   request: NextRequest,
@@ -22,18 +22,20 @@ export async function PUT(
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     const { id } = await params;
     const body = await request.json();
+    const locale = (body.locale || 'en') as 'en' | 'zh';
     
+    const UpdateTaskSchema = createExtendedUpdateTaskSchema(locale);
     const validation = UpdateTaskSchema.safeParse(body);
     if (!validation.success) {
       return validationErrorResponse(validation.error.issues);
     }
 
-    // 檢查任務是否存在
+    // Check if task exists
     const existingTask = await prisma.task.findUnique({
       where: { id },
       include: {
@@ -46,23 +48,23 @@ export async function PUT(
     });
 
     if (!existingTask) {
-      return errorResponse('任務不存在', 404);
+      return errorResponse('Task not found', 404);
     }
 
-    // 檢查用戶是否為該家庭成員
+    // Check if user is a member of this family
     const isFamilyMember = existingTask.family.members.some(
       member => member.userId === user.id
     );
 
     if (!isFamilyMember) {
-      return errorResponse('您不是該家庭的成員', 403);
+      return errorResponse('You are not a member of this family', 403);
     }
 
     const updateData = validation.data;
 
-    // 如果更新狀態為已完成，設置完成時間和積分記錄
+    // If updating status to completed, set completion time and point record
     if (updateData.status === 'COMPLETED' && existingTask.status !== 'COMPLETED') {
-      // 創建積分記錄（如果任務有積分且分配給了用戶）
+      // Create point record (if task has points and is assigned to a user)
       if (existingTask.points > 0 && existingTask.assignedToId) {
         await prisma.pointRecord.create({
           data: {
@@ -71,15 +73,15 @@ export async function PUT(
             taskId: existingTask.id,
             points: existingTask.points,
             type: 'EARNED',
-            description: `完成任務：${existingTask.title}`
+            description: `Task completed: ${existingTask.title}`
           }
         });
       }
 
-      // 設置完成時間會在下面的 update 中處理
+      // Completion time will be handled in the update below
     }
 
-    // 更新任務
+    // Update task
     const updatedTask = await prisma.task.update({
       where: { id },
       data: {
@@ -116,8 +118,8 @@ export async function PUT(
 
     return successResponse(updatedTask);
   } catch (error) {
-    console.error('更新任務錯誤:', error);
-    return errorResponse('更新任務失敗');
+    console.error('Failed to update task:', error);
+    return errorResponse('Failed to update task');
   }
 }
 
@@ -128,12 +130,12 @@ export async function DELETE(
   try {
     const user = await verifyTokenFromRequest(request);
     if (!user) {
-      return errorResponse('未授權', 401);
+      return errorResponse('Unauthorized', 401);
     }
 
     const { id } = await params;
 
-    // 檢查任務是否存在
+    // Check if task exists
     const existingTask = await prisma.task.findUnique({
       where: { id },
       include: {
@@ -146,36 +148,36 @@ export async function DELETE(
     });
 
     if (!existingTask) {
-      return errorResponse('任務不存在', 404);
+      return errorResponse('Task not found', 404);
     }
 
-    // 檢查用戶是否為該家庭成員且為任務創建者或管理員
+    // Check if user is a family member and is the task creator or admin
     const familyMember = existingTask.family.members.find(
       member => member.userId === user.id
     );
 
     if (!familyMember) {
-      return errorResponse('您不是該家庭的成員', 403);
+      return errorResponse('You are not a member of this family', 403);
     }
 
-    // 只有任務創建者或家庭管理員可以刪除任務
+    // Only task creator or family admin can delete task
     if (existingTask.createdById !== user.id && familyMember.role !== 'ADMIN') {
-      return errorResponse('沒有權限刪除此任務', 403);
+      return errorResponse('No permission to delete this task', 403);
     }
 
-    // 刪除相關積分記錄
+    // Delete related point records
     await prisma.pointRecord.deleteMany({
       where: { taskId: id }
     });
 
-    // 刪除任務
+    // Delete task
     await prisma.task.delete({
       where: { id }
     });
 
-    return successResponse({ message: '任務已刪除' });
+    return successResponse({ message: 'Task deleted successfully' });
   } catch (error) {
-    console.error('刪除任務錯誤:', error);
-    return errorResponse('刪除任務失敗');
+    console.error('Failed to delete task:', error);
+    return errorResponse('Failed to delete task');
   }
 }

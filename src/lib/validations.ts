@@ -1,69 +1,95 @@
 import { z } from 'zod';
+import { getValidationMessages, type Locale } from './validation-messages';
 
-// 用戶認證相關
-export const RegisterSchema = z.object({
-  email: z.string().email('請輸入有效的電子郵件地址'),
-  password: z.string().min(6, '密碼至少需要6個字符').max(100, '密碼不能超過100個字符'),
-  name: z.string().min(1, '姓名不能為空').max(50, '姓名不能超過50個字符'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: '密碼確認不匹配',
-  path: ['confirmPassword']
-});
+// Create validation schemas with locale support
+function createValidationSchemas(locale: Locale = 'en') {
+  const messages = getValidationMessages(locale);
 
-export const LoginSchema = z.object({
-  email: z.string().email('請輸入有效的電子郵件地址'),
-  password: z.string().min(1, '密碼不能為空')
-});
+  return {
+    RegisterSchema: z.object({
+      email: z.string().email(messages.email.invalid),
+      password: z.string()
+        .min(6, messages.password.minLength)
+        .max(100, messages.password.maxLength),
+      name: z.string()
+        .min(1, messages.name.required)
+        .max(50, messages.name.maxLength),
+      confirmPassword: z.string()
+    }).refine((data) => data.password === data.confirmPassword, {
+      message: messages.confirmPassword.mismatch,
+      path: ['confirmPassword']
+    }),
 
-export const RefreshTokenSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token不能為空')
-});
+    LoginSchema: z.object({
+      email: z.string().email(messages.email.invalid),
+      password: z.string().min(1, messages.password.required)
+    }),
 
-// 家庭管理相關
-export const CreateFamilySchema = z.object({
-  name: z.string().min(1, '家庭名稱不能為空').max(50, '家庭名稱不能超過50個字符'),
-  description: z.string().max(200, '描述不能超過200個字符').optional()
-});
+    RefreshTokenSchema: z.object({
+      refreshToken: z.string().min(1, messages.refreshToken.required)
+    }),
 
-export const UpdateFamilySchema = z.object({
-  name: z.string().min(1, '家庭名稱不能為空').max(50, '家庭名稱不能超過50個字符').optional(),
-  description: z.string().max(200, '描述不能超過200個字符').optional()
-});
+    CreateFamilySchema: z.object({
+      name: z.string().min(1, messages.family.nameRequired).max(50, messages.family.nameMaxLength),
+      description: z.string().max(200, messages.family.descriptionMaxLength).optional()
+    }),
 
-export const JoinFamilySchema = z.object({
-  inviteCode: z.string().min(1, '邀請碼不能為空')
-});
+    UpdateFamilySchema: z.object({
+      name: z.string().min(1, messages.family.nameRequired).max(50, messages.family.nameMaxLength).optional(),
+      description: z.string().max(200, messages.family.descriptionMaxLength).optional()
+    }),
 
-// 任務管理相關
-export const CreateTaskSchema = z.object({
-  title: z.string().min(1, '任務標題不能為空').max(100, '任務標題不能超過100個字符'),
-  description: z.string().max(500, '任務描述不能超過500個字符').optional(),
-  points: z.number().min(0, '積分不能為負數').max(1000, '積分不能超過1000'),
-  category: z.string().min(1, '任務類別不能為空').max(50, '任務類別不能超過50個字符'),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'], {
-    message: '優先級必須是 LOW, MEDIUM, HIGH, 或 URGENT 之一'
-  }),
-  dueDate: z.string().datetime().optional(),
-  familyId: z.string().min(1, '家庭ID不能為空'),
-  assignedToId: z.string().optional()
-});
+    JoinFamilySchema: z.object({
+      inviteCode: z.string().min(1, messages.inviteCode.required)
+    }),
 
-export const UpdateTaskSchema = z.object({
-  title: z.string().min(1, '任務標題不能為空').max(100, '任務標題不能超過100個字符').optional(),
-  description: z.string().max(500, '任務描述不能超過500個字符').optional(),
-  points: z.number().min(0, '積分不能為負數').max(1000, '積分不能超過1000').optional(),
-  category: z.string().min(1, '任務類別不能為空').max(50, '任務類別不能超過50個字符').optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  dueDate: z.string().datetime().optional(),
-  assignedToId: z.string().optional()
-});
+    CreateTaskSchema: z.object({
+      title: z.string().min(1, messages.task.titleRequired).max(100, messages.task.titleMaxLength),
+      description: z.string().max(500, messages.task.descriptionMaxLength).optional(),
+      points: z.number().min(0, messages.task.pointsMin).max(1000, messages.task.pointsMax),
+      category: z.string().min(1, messages.task.categoryRequired).max(50, messages.task.categoryMaxLength),
+      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'], {
+        message: messages.task.priorityInvalid
+      }),
+      dueDate: z.string().datetime().optional(),
+      familyId: z.string().min(1, messages.task.familyIdRequired),
+      assignedToId: z.string().optional()
+    }),
 
-export const AssignTaskSchema = z.object({
-  assignedToId: z.string().min(1, '被分配用戶ID不能為空')
-});
+    UpdateTaskSchema: z.object({
+      title: z.string().min(1, messages.task.titleRequired).max(100, messages.task.titleMaxLength).optional(),
+      description: z.string().max(500, messages.task.descriptionMaxLength).optional(),
+      points: z.number().min(0, messages.task.pointsMin).max(1000, messages.task.pointsMax).optional(),
+      category: z.string().min(1, messages.task.categoryRequired).max(50, messages.task.categoryMaxLength).optional(),
+      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+      dueDate: z.string().datetime().optional(),
+      assignedToId: z.string().optional()
+    }),
 
-// API響應類型
+    AssignTaskSchema: z.object({
+      assignedToId: z.string().min(1, messages.task.assignedToRequired)
+    })
+  };
+}
+
+// Default schemas (English)
+const defaultSchemas = createValidationSchemas('en');
+
+// Export default schemas for backward compatibility
+export const RegisterSchema = defaultSchemas.RegisterSchema;
+export const LoginSchema = defaultSchemas.LoginSchema;
+export const RefreshTokenSchema = defaultSchemas.RefreshTokenSchema;
+export const CreateFamilySchema = defaultSchemas.CreateFamilySchema;
+export const UpdateFamilySchema = defaultSchemas.UpdateFamilySchema;
+export const JoinFamilySchema = defaultSchemas.JoinFamilySchema;
+export const CreateTaskSchema = defaultSchemas.CreateTaskSchema;
+export const UpdateTaskSchema = defaultSchemas.UpdateTaskSchema;
+export const AssignTaskSchema = defaultSchemas.AssignTaskSchema;
+
+// Export function to create schemas with specific locale
+export { createValidationSchemas };
+
+// API響應類型 | API response types
 export interface APIResponse<T = any> {
   success: boolean;
   data?: T;

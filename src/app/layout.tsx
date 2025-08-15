@@ -1,21 +1,13 @@
-import type { Metadata } from "next";
+import { ReactNode } from 'react';
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "HabitHome - 智能家務分配工具",
-  description: "為情侶、室友和家庭設計的公平家務分配平台",
-  keywords: "家務分配, 家庭管理, 任務分配, 情侶工具",
-  authors: [{ name: "HabitHome Team" }],
-  viewport: "width=device-width, initial-scale=1",
+type Props = {
+  children: ReactNode;
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({children}: Props) {
   return (
-    <html lang="zh-TW">
+    <html suppressHydrationWarning>
       <body className="antialiased">
         {children}
       </body>

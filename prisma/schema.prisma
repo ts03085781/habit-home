@@ -19,17 +19,17 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // 家庭關係
+  // 家庭關係 | Family relationships
   familyMembers FamilyMember[]
   
-  // 任務關係
+  // 任務關係 | Task relationships
   assignedTasks Task[] @relation("AssignedTo")
   createdTasks  Task[] @relation("CreatedBy")
   
-  // 積分記錄
+  // 積分記錄 | Point records
   pointRecords  PointRecord[]
   
-  // 通知
+  // 通知 | Notifications
   notifications Notification[]
 
   @@map("users")
@@ -43,13 +43,13 @@ model Family {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // 成員關係
+  // 成員關係 | Member relationships
   members FamilyMember[]
   
-  // 任務
+  // 任務 | Tasks
   tasks   Task[]
   
-  // 積分記錄
+  // 積分記錄 | Point records
   pointRecords PointRecord[]
 
   @@map("families")
@@ -78,13 +78,13 @@ model Task {
   priority    TaskPriority @default(MEDIUM)
   status      TaskStatus @default(PENDING)
   
-  // 時間相關
+  // 時間相關 | Time related
   dueDate     DateTime?
   completedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  // 關係
+  // 關係 | Relationships
   familyId    String
   assignedToId String?
   createdById String
@@ -93,7 +93,7 @@ model Task {
   assignedTo User?  @relation("AssignedTo", fields: [assignedToId], references: [id])
   createdBy  User   @relation("CreatedBy", fields: [createdById], references: [id])
 
-  // 積分記錄
+  // 積分記錄 | Point records
   pointRecords PointRecord[]
 
   @@map("tasks")
@@ -123,7 +123,7 @@ model Notification {
   content   String
   type      NotificationType
   isRead    Boolean          @default(false)
-  data      Json?            // 額外數據，如任務ID等
+  data      Json?            // 額外數據，如任務ID等 | Additional data, such as task ID
   createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -131,7 +131,7 @@ model Notification {
   @@map("notifications")
 }
 
-// 列舉類型
+// 列舉類型 | Enum types
 enum FamilyMemberRole {
   ADMIN
   MEMBER
@@ -152,15 +152,15 @@ enum TaskStatus {
 }
 
 enum PointRecordType {
-  EARNED      // 完成任務獲得
-  BONUS       // 額外獎勵
-  PENALTY     // 懲罰扣分
+  EARNED      // 完成任務獲得 | Earned from completing tasks
+  BONUS       // 額外獎勵 | Bonus rewards
+  PENALTY     // 懲罰扣分 | Penalty deductions
 }
 
 enum NotificationType {
-  TASK_ASSIGNED    // 任務分配
-  TASK_REMINDER    // 任務提醒
-  TASK_COMPLETED   // 任務完成
-  FAMILY_INVITE    // 家庭邀請
-  ACHIEVEMENT      // 成就解鎖
+  TASK_ASSIGNED    // 任務分配 | Task assignment
+  TASK_REMINDER    // 任務提醒 | Task reminder
+  TASK_COMPLETED   // 任務完成 | Task completed
+  FAMILY_INVITE    // 家庭邀請 | Family invitation
+  ACHIEVEMENT      // 成就解鎖 | Achievement unlocked
 }
