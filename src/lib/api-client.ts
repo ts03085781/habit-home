@@ -159,6 +159,13 @@ class APIClient {
     });
   }
 
+  async leaveFamily(familyId: string) {
+    return this.request('/families/leave', {
+      method: 'POST',
+      body: JSON.stringify({ familyId })
+    });
+  }
+
   async getFamily(id: string) {
     return this.request(`/families/${id}`, { method: 'GET' });
   }

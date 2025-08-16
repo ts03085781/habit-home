@@ -7,6 +7,7 @@ import CreateTaskModal from "@/components/CreateTaskModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import EditTaskModal from "@/components/EditTaskModal";
 import JoinFamilyModal from "@/components/JoinFamilyModal";
+import LeaveFamilyModal from "@/components/LeaveFamilyModal";
 import TaskCard from "@/components/TaskCard";
 
 
@@ -23,6 +24,8 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+  const [showLeaveFamily, setShowLeaveFamily] = useState(false);
+  const [leavingFamily, setLeavingFamily] = useState<Family | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('dueDate');
 
   const handleDataRefresh = async () => {
@@ -142,6 +145,11 @@ export default function DashboardPage() {
   const handleCopyInviteCode = (inviteCode: string) => {
     navigator.clipboard.writeText(inviteCode);
     alert('已複製邀請碼');
+  };
+
+  const handleLeaveFamily = (family: Family) => {
+    setLeavingFamily(family);
+    setShowLeaveFamily(true);
   };
 
   if (isLoading) {
@@ -276,6 +284,15 @@ export default function DashboardPage() {
                     複製邀請碼
                     </button>
                   </div>
+                  
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={() => handleLeaveFamily(family)}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors"
+                    >
+                      退出群組
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -394,6 +411,18 @@ export default function DashboardPage() {
           onClose={() => {
             setShowDeleteConfirm(false);
             setDeletingTask(null);
+          }}
+          onSuccess={handleDataRefresh}
+        />
+      )}
+
+      {/* 退出群組確認對話框 */}
+      {showLeaveFamily && leavingFamily && (
+        <LeaveFamilyModal 
+          family={leavingFamily}
+          onClose={() => {
+            setShowLeaveFamily(false);
+            setLeavingFamily(null);
           }}
           onSuccess={handleDataRefresh}
         />
