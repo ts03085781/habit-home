@@ -49,12 +49,19 @@ export async function POST(request: NextRequest) {
       return errorResponse('您不是該群組的成員', 404);
     }
 
-    // 檢查是否為群組的最後一個成員（如果是，則不能退出）
+    // 檢查是否為群組的最後一個成員
     if (familyMember.family._count.members === 1) {
-      return errorResponse('您是群組的最後一個成員，無法退出群組', 400);
+      // 如果是最後一個成員，直接刪除整個群組（會級聯刪除所有相關資料）
+      await prisma.family.delete({
+        where: {
+          id: familyId
+        }
+      });
+      
+      return successResponse({ message: '已成功退出群組，群組已被刪除' });
     }
 
-    // 檢查是否為群組管理員且群組中還有其他成員
+    // 如果不是最後一個成員，檢查是否為群組管理員
     if (familyMember.role === 'ADMIN') {
       const otherMembers = await prisma.familyMember.findMany({
         where: {

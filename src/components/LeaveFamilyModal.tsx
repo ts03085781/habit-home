@@ -49,6 +49,9 @@ export default function LeaveFamilyModal({ family, onClose, onSuccess }: LeaveFa
             <p className="text-yellow-800 text-sm">
               ⚠️ 退出後您將無法再訪問該群組的任務和資訊，除非重新加入。
             </p>
+            <p className="text-yellow-800 text-sm mt-2">
+              💡 如果您是群組的最後一個成員，退出後整個群組將被刪除。
+            </p>
           </div>
         </div>
 
